@@ -17,8 +17,12 @@
 
 
 ## 3. Environment Setup
-
-
+- Start Docker and enter bash:
+    It mounts input&output directory
+```
+docker compose build
+docker compose run --rm kaggle bash 
+```
 
 ## 4. Preprocessing 
 
@@ -37,6 +41,12 @@ python experiments/201_unet_multi/run.py exp=all_n3_restart2
 python experiments/201_unet_multi/run.py exp=all_512_n3
 python experiments/201_unet_multi/run.py exp=all_384_n2
 python experiments/201_unet_multi/run.py exp=all
+python experiments/217_fix_transformer_leak/run.py exp=all_cos_head64
+python experiments/217_fix_transformer_leak/run.py exp=all_cos_head64_n4
+python experiments/222_wo_transformer/run.py exp=all
+python experiments/222_wo_transformer/run.py exp=all_004
+python experiments/225_smoothl1_loss/run.py exp=all_005
+python experiments/225_smoothl1_loss/run.py exp=all_beta
 ```
 
 
@@ -47,6 +57,16 @@ python experiments/201_unet_multi/run.py exp=all
 - output directry
     ```
     output/experiments/204_diff_last/all_lr
+    output/experiments/201_unet_multi/all_n3_restart2
+    output/experiments/201_unet_multi/all_512_n3
+    output/experiments/201_unet_multi/all_384_n2
+    output/experiments/201_unet_multi/all
+    output/experiments/217_fix_transformer_leak/all_cos_head64
+    output/experiments/217_fix_transformer_leak/all_cos_head64_n4
+    output/experiments/222_wo_transformer/all
+    output/experiments/222_wo_transformer/all_004
+    output/experiments/225_smoothl1_loss/all_005
+    output/experiments/225_smoothl1_loss/all_beta
     ```                        
 
 result: https://www.kaggle.com/datasets/kami634/kami-leap-pred2
