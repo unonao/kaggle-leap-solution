@@ -1,0 +1,6 @@
+defaults:
+  - all_n3@_here_ # ベースの設定ファイルを指定する
+
+optimizer: 
+  name: Adan
+  lr: 2e-5

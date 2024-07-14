@@ -1012,28 +1012,28 @@ class LeapModel(nn.Module):
                     use_batch_norm=use_batch_norm,
                 )
             )
-            in_channels = n_base_channels
+            in_channels += n_base_channels
         self.unet_layers = nn.ModuleList(unet_layers)
 
         self.t_head = MLP(
-            in_channels,
+            9 + in_channels,
             output_hidden_sizes + [2],
             use_layer_norm=use_output_layer_norm,
         )
         self.q1_head = MLP(
-            in_channels,
+            5 + in_channels,
             output_hidden_sizes + [2],
             use_layer_norm=use_output_layer_norm,
         )
         self.cloud_water_head = MLP(
-            in_channels,
+            6 + in_channels,
             output_hidden_sizes + [4],
             use_layer_norm=use_output_layer_norm,
         )
         self.wind_head = nn.ModuleList(
             [
                 MLP(
-                    in_channels,
+                    8 + in_channels,
                     output_hidden_sizes + [2],
                     use_layer_norm=use_output_layer_norm,
                 )
@@ -1042,6 +1042,9 @@ class LeapModel(nn.Module):
         )
 
     def forward(self, x, x_cat):
+        relative_humidity_all = x[:, 556 : 556 + 60].unsqueeze(-1)
+        x_cloud_snow_rate_array = x[:, 556 + 60 : 556 + 120].unsqueeze(-1)
+        x_cloud_water = x[:, 556 + 120 : 556 + 180].unsqueeze(-1)
         x_state_t = x[:, :60].unsqueeze(-1)
         x_state_q0001 = x[:, 60:120].unsqueeze(-1)
         x_state_q0002 = x[:, 120:180].unsqueeze(-1)
@@ -1104,30 +1107,98 @@ class LeapModel(nn.Module):
         x = x.transpose(-1, -2).unsqueeze(-1)
 
         # input: (batch, n_base_channels, 60, 1)
-        h = x
         for unet_layer in self.unet_layers:
-            x_pre = h
-            h, class_logits = unet_layer(x_pre)
-
-        x = x_pre - h
+            x_out, class_logits = unet_layer(x)
+            x = torch.cat([x, x_out], dim=1)
 
         x = x.squeeze(-1)  # ->(batch, n_base_channels, 60)
         x = x.transpose(-1, -2)  # ->(batch, 60, n_base_channels)
 
-        out_t = self.t_head(x)  # -> (batch, 60, 1)
+        out_t = self.t_head(
+            torch.cat(
+                [
+                    x_state_t,
+                    relative_humidity_all,
+                    x_state_q0001,
+                    x_state_q0002,
+                    x_state_q0003,
+                    x_cloud_water,
+                    x_cloud_snow_rate_array,
+                    x_state_u,
+                    x_state_v,
+                    x,
+                ],
+                dim=2,
+            )
+        )  # -> (batch, 60, 1)
         out_t = out_t[:, :, 0:1].exp() - out_t[:, :, 1:2].exp()
 
-        out_q1 = self.q1_head(x)
+        out_q1 = self.q1_head(
+            torch.cat(
+                [
+                    x_state_t,
+                    out_t,
+                    relative_humidity_all,
+                    x_state_q0001,
+                    x_cloud_water,
+                    x,
+                ],
+                dim=2,
+            )
+        )
         out_q1 = out_q1[:, :, 0:1].exp() - out_q1[:, :, 1:2].exp()
 
-        out_cw = self.cloud_water_head(x)
+        out_cw = self.cloud_water_head(
+            torch.cat(
+                [
+                    x_state_t,
+                    out_t,
+                    relative_humidity_all,
+                    x_state_q0001,
+                    x_cloud_water,
+                    x_cloud_snow_rate_array,
+                    x,
+                ],
+                dim=2,
+            )
+        )
         out_q2 = out_cw[:, :, 0:1].exp() - out_cw[:, :, 1:2].exp()
         out_q3 = out_cw[:, :, 2:3].exp() - out_cw[:, :, 3:4].exp()
 
-        out_u = self.wind_head[0](x)
+        out_u = self.wind_head[0](
+            torch.cat(
+                [
+                    x_state_t,
+                    out_t,
+                    x_state_q0001,
+                    x_state_q0002,
+                    x_state_q0003,
+                    x_cloud_water,
+                    x_cloud_snow_rate_array,
+                    x_state_u,
+                    x,
+                ],
+                dim=2,
+            )
+        )
         out_u = out_u[:, :, 0:1].exp() - out_u[:, :, 1:2].exp()
 
-        out_v = self.wind_head[1](x)
+        out_v = self.wind_head[1](
+            torch.cat(
+                [
+                    x_state_t,
+                    out_t,
+                    x_state_q0001,
+                    x_state_q0002,
+                    x_state_q0003,
+                    x_cloud_water,
+                    x_cloud_snow_rate_array,
+                    x_state_v,
+                    x,
+                ],
+                dim=2,
+            )
+        )
         out_v = out_v[:, :, 0:1].exp() - out_v[:, :, 1:2].exp()
 
         out = torch.cat([out_t, out_q1, out_q2, out_q3, out_u, out_v], dim=2)
@@ -1380,7 +1451,13 @@ def train(cfg: DictConfig, output_path: Path, pl_logger) -> None:
     valid_name = get_valid_name(cfg)
     monitor = f"valid_r2_score/{valid_name}"
     dm = LeapLightningDataModule(cfg)
-    model = LeapLightningModule(cfg)
+
+    if cfg.exp.restart_ckpt_path:
+        model = LeapLightningModule.load_from_checkpoint(
+            cfg.exp.restart_ckpt_path, cfg=cfg
+        )
+    else:
+        model = LeapLightningModule(cfg)
     checkpoint_cb = ModelCheckpoint(
         dirpath=output_path / "checkpoints",
         verbose=True,
