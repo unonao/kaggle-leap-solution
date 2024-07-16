@@ -3,6 +3,11 @@
 
 ## 1. Machine Specifications
 
+- Preprocessing: 
+    - Google Compute Engine n2-highmem-32（32 vCPU、16 cores、256 GB memory）
+- Training & Inference: 
+    - Google Compute Engine N1 Series (1 x NVIDIA V100, 12 vCPU, 6 cores, 78 GB memory)
+
 
 
 ## 2. Directory&Data Preparation
