@@ -35,6 +35,9 @@ python preprocess/make_webdataset_batch/run.py exp=all  # donwload & create webd
 ```
 
 ## 5. Training and Inference
+To perform only training, add 'exp.modes=[train]'.
+For inference only for validation, add 'exp.modes=[valid2]'.
+To run inference only for testing, add 'exp.modes=[test]'.
 ```
 python experiments/204_diff_last/run.py exp=all_lr
 python experiments/201_unet_multi/run.py exp=all_n3_restart2
@@ -68,5 +71,5 @@ python experiments/225_smoothl1_loss/run.py exp=all_beta
     output/experiments/225_smoothl1_loss/all_005
     output/experiments/225_smoothl1_loss/all_beta
     ```                        
-
-result: https://www.kaggle.com/datasets/kami634/kami-leap-pred2
+- prediction: https://www.kaggle.com/datasets/kami634/kami-leap-pred2
+- models: https://www.kaggle.com/datasets/kami634/kaggle-leap-models
