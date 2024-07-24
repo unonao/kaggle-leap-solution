@@ -92,7 +92,7 @@ If you only want to reproduce the inference, please follow these steps:
     mkdir -p output
     ```
 
-## 2. Environment Setup
+### 2. Environment Setup
 - Start Docker and enter bash:
     It mounts input&output directory
 ```
