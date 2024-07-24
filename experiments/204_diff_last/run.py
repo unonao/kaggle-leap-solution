@@ -488,7 +488,8 @@ class LeapLightningDataModule(LightningDataModule):
         self.scaler = Scaler(cfg)
         self.cfg = cfg
         self.rng = random.Random(self.cfg.exp.seed)
-        self.train_dataset = self._make_dataset("train")
+        if "train" in cfg.exp.modes:
+            self.train_dataset = self._make_dataset("train")
         # self.valid_dataset = self._make_dataset("valid")
         grid_path = "/kaggle/working/misc/grid_info/ClimSim_low-res_grid-info.nc"
         grid_info = xr.open_dataset(grid_path)
