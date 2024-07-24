@@ -1,6 +1,6 @@
 # kaggle-leap-solution
 
-- Normalisation files & Models are avalilable on Google drive
+- Normalisation files & Models are available on Google drive
     - https://drive.google.com/drive/folders/1GwKN63l5KT-BDAbGfeo-51wPzvnrW8LT
 
 ## Machine Specifications
