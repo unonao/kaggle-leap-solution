@@ -201,3 +201,17 @@ python experiments/225_smoothl1_loss/run.py exp=all_beta 'exp.modes=[test]'
 ```
 
 ### Output
+- output files
+    ```
+    output/experiments/204_diff_last/all_lr/submission.parquet
+    output/experiments/201_unet_multi/all_n3_restart2/submission.parquet
+    output/experiments/201_unet_multi/all_512_n3/submission.parquet
+    output/experiments/201_unet_multi/all_384_n2/submission.parquet
+    output/experiments/201_unet_multi/all/submission.parquet
+    output/experiments/217_fix_transformer_leak/all_cos_head64/submission.parquet
+    output/experiments/217_fix_transformer_leak/all_cos_head64_n4/submission.parquet
+    output/experiments/222_wo_transformer/all/submission.parquet
+    output/experiments/222_wo_transformer/all_004/submission.parquet
+    output/experiments/225_smoothl1_loss/all_005/submission.parquet
+    output/experiments/225_smoothl1_loss/all_beta/submission.parquet
+    ```                        
