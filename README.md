@@ -200,6 +200,11 @@ python experiments/225_smoothl1_loss/run.py exp=all_005 'exp.modes=[test]'
 python experiments/225_smoothl1_loss/run.py exp=all_beta 'exp.modes=[test]'
 ```
 
+upload
+```
+python tools/upload.py 
+```
+
 ### Output
 - output files
     ```
@@ -215,3 +220,4 @@ python experiments/225_smoothl1_loss/run.py exp=all_beta 'exp.modes=[test]'
     output/experiments/225_smoothl1_loss/all_005/submission.parquet
     output/experiments/225_smoothl1_loss/all_beta/submission.parquet
     ```                        
+
